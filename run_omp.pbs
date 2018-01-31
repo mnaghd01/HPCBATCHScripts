@@ -1,0 +1,25 @@
+#!/bin/sh
+
+#PBS -S /bin/sh
+#PBS -N Bench_Cute_OMP_N12PPN12
+#PBS -l nodes=1:ppn=12,walltime=48:00:00,mem=660GB
+#PBS -q bigmem
+#PBS -M mnt242@nyu.edu
+#PBS -V
+#PBS -m abe
+
+##cat $PBS_NODEFILE > nodes
+## How many cores total do we have?
+##NO_OF_CORES=`cat $PBS_NODEFILE | egrep -v '^#'\|'^$' | wc -l | awk '{print $1}'`
+##NODE_LIST=`cat $PBS_NODEFILE `
+##echo NO_OF_CORES
+##echo NODE_LIST
+##echo "Now starting JOB ARRAY # ${PBS_ARRAY_INDEX} at `date`"
+module load NYUAD/2.0
+module load apps
+module load lammps
+cd $PBS_O_WORKDIR
+
+##time mpiexec lmp_mpi -sf omp -pk set OMP_NUM_THREADS=2 -in in.chute >  ${PBS_JOBNAME}_${PBS_JOBID}_output.log 
+##time mpirun -x OMP_NUM_THREADS=2 -np 24 lmp_mpi -sf omp -in in.chute
+time mpiexec -np $PBS_NP -x OMP_NUM_THREADS=2 lmp_mpi -sf omp  -l ${PBS_JOBNAME}.log.lammps < in.re.dimless.pour > ${PBS_JOBNAME}_${PBS_JOBID}_output.log

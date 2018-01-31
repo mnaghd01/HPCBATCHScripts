@@ -1,0 +1,48 @@
+#!/bin/sh
+##This is for Butinah
+
+##In this stage I'll go through the input file and change the values for initial and Current time step for 8 stage
+
+
+#PBS -S /bin/sh
+#PBS -N Bench_Cute_OMP2_N1PPN12
+#PBS -q s48
+#PBS -l nodes=1:ppn=12,walltime=48:00:00,mem=20GB
+#PBS -M mnt242@nyu.edu
+#PBS -V
+#PBS -m abe
+
+##cat $PBS_NODEFILE > nodes
+## How many cores total do we have?
+##NO_OF_CORES=`cat $PBS_NODEFILE | egrep -v '^#'\|'^$' | wc -l | awk '{print $1}'`
+##NODE_LIST=`cat $PBS_NODEFILE `
+##echo NO_OF_CORES
+##echo NODE_LIST
+echo "Now starting JOB ARRAY # ${PBS_ARRAY_INDEX} at `date`"
+##module load NYUAD/2.0
+##module load apps
+
+module load lammps
+cd /scratch/mnt242/grain/lammps/new/P7_hard/restart/2D/David_H_Experiment/NoWind/Angles/Vel_6ms/PBS_O_WORKDIR
+
+##Then I search the input file with the given initial and also assigned values to replace the initial values
+
+for i in {0..16}
+do
+InitialFileStep=519000
+echo "First: $i+${InitialFileStep}"
+CurrentStage=$((($i*(9*4000)) + $InitialFileStep))
+echo "CurrentStage=$CurrentStage"
+PreviousStage=$((($(($(($i-1))*(9*4000)))) + (InitialFileStep)))
+echo "PreviousStage=$PreviousStage"
+if [[ $i -ne 0 ]]
+then
+perl -pi -e 's/'"$PreviousStage"'/'"$CurrentStage"'/g' in.2d
+cp dump/dump.pourCohe.$CurrentStage .
+cp dump/restart.$CurrentStage.bed .
+fi
+
+time mpiexec -np $PBS_NP -x OMP_NUM_THREADS=2 lmp_mpi -sf omp  -l ${PBS_JOBNAME}_${CurrentStage}.log.lammps < in.2d> ${PBS_JOBNAME}_${PBS_JOBID}_output_${CurrentStage}.log
+echo "Hey!"
+
+done

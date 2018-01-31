@@ -1,0 +1,27 @@
+#!/bin/sh
+##This is for Butinah
+
+##In this stage I'll go through the input file and change the values for initial and Current time step for 8 stage
+
+
+#PBS -S /bin/sh
+#PBS -N V_6.082_Degree_-4.46
+#PBS -q s48
+#PBS -l nodes=1:ppn=12,walltime=48:00:00,mem=20GB
+#PBS -M mnt242@nyu.edu
+#PBS -V
+#PBS -m abe
+
+##cat $PBS_NODEFILE > nodes
+## How many cores total do we have?
+##NO_OF_CORES=`cat $PBS_NODEFILE | egrep -v '^#'\|'^$' | wc -l | awk '{print $1}'`
+##NODE_LIST=`cat $PBS_NODEFILE `
+##echo NO_OF_CORES
+##echo NODE_LIST
+echo "Now starting JOB ARRAY # ${PBS_ARRAY_INDEX} at `date`"
+module load NYUAD/2.0
+module load apps
+module load lammps
+
+cd $PBS_O_WORKDIR
+/home/mnt242/Documents/ovito-2.6.1-x86_64/bin/ovitos In_script.py
